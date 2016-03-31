@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-python -m ssh-menu
+python -m ssh-menu "$@"
