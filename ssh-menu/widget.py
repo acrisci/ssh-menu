@@ -2,7 +2,8 @@ import urwid
 
 choices = u'Chapman Cleese Gilliam Idle Jones Palin'.split()
 
-def start():
+def start(config):
+    """Start the widget and handle user input. Blocks until the widget exits. Returns the ssh connection string"""
     def menu(title, choices):
         body = [urwid.Text(title), urwid.Divider()]
         for c in choices:
