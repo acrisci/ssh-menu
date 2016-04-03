@@ -1,18 +1,7 @@
 import urwid
 
-from urwid import AttrMap
-from urwid import Text
-from urwid import Frame
-from urwid import Overlay
-from urwid import ExitMainLoop
-from urwid import ListBox
-from urwid import Button
-from urwid import Divider
-from urwid import Padding
-from urwid import SolidFill
-from urwid import GridFlow
-from urwid import Pile
-from urwid import Filler
+from urwid import AttrMap, Text, Frame, Overlay, ExitMainLoop, ListBox, Button, \
+                  Divider, Padding, SolidFill, GridFlow, Pile, Filler
 
 choice = None
 
