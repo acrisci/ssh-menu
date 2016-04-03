@@ -83,6 +83,9 @@ class Server():
         self.address= address
         self.description = description
 
+    def connection_string(self):
+        return "%s@%s" % (self.user, self.address)
+
 
 class ServersConfig():
     """A class for accessing the server config and persistence"""

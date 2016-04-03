@@ -13,7 +13,6 @@ init_config()
 path = get_default_servers_config_path()
 config = get_servers_config(path)
 
-for s in config.servers:
-    print("got server: %s" % s.name)
+choice = widget.start(config)
 
-#widget.start()
+print("User chose: %s" % choice)
