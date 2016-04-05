@@ -127,6 +127,11 @@ class ServersConfig():
         else:
             self.servers[name] = Server(name, user, address)
 
+    def remove_server(self, name):
+        server = self.get_server(name)
+        if server:
+            del self.servers[name]
+
     def save(self):
         """Save it to the disk at the given path"""
         config_json = json.dumps(self.to_map(), indent=2) + "\n"

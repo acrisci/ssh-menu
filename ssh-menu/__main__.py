@@ -16,6 +16,14 @@ def add_server(args, config):
     config.add_server(args.name, user, address)
     config.save()
 
+def remove_server(args, config):
+    server = config.get_server(args.name)
+    if not server:
+        ArgumentParser.exit(1, "No such server '%s'" % args.name)
+
+    config.remove_server(server.name)
+    config.save()
+
 def run_app(args, config):
     print('running app...')
     print(args)
@@ -27,17 +35,28 @@ parser.set_defaults(func=run_app)
 
 subparsers = parser.add_subparsers(title='commands', help='commands', dest='command')
 
+# The `add` subparser adds a new server
 add_subparser = subparsers.add_parser('add',
                                       help='Add a new server',
                                       description='Add a new server',
                                       add_help=True,
                                       usage='add [name] [connection]')
-
 add_subparser.add_argument('name',
                            help='A name to give to the server')
 add_subparser.add_argument('connection',
                            help='The connection string (user@address)')
 add_subparser.set_defaults(func=add_server)
+
+# The `remove` subparser removes an existing server
+remove_subparser = subparsers.add_parser('rm',
+                                         help='Remove a server',
+                                         description='Remove a server',
+                                         add_help=True,
+                                         usage='rm [name]')
+remove_subparser.add_argument('name',
+                              help='The name of the server to remove')
+remove_subparser.set_defaults(func=remove_server)
+
 
 args = parser.parse_args()
 
