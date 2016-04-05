@@ -6,10 +6,10 @@ VERSION = "1"
 VERSION_KEY = "version"
 SERVERS_KEY = "servers"
 
-SERVER_NAME_KEY = "name"
-SERVER_USER_KEY = "user"
-SERVER_DESCRIPTION_KEY = "description"
-SERVER_ADDRESS_KEY = "address"
+NAME_KEY = "name"
+USER_KEY = "user"
+DESCRIPTION_KEY = "description"
+ADDRESS_KEY = "address"
 
 home = os.environ['HOME']
 default_config_dir = "%s/.ssh-menu" % home
@@ -57,19 +57,19 @@ def get_servers_config(path):
 
         for server in config[SERVERS_KEY]:
             # validate the server
-            required_keys = [ SERVER_NAME_KEY, SERVER_USER_KEY, SERVER_ADDRESS_KEY ]
+            required_keys = [ NAME_KEY, USER_KEY, ADDRESS_KEY ]
             for k in required_keys:
                 if k not in server:
                     raise InvalidConfigException("server missing required key: %s" % k)
 
             # add defaults
-            if SERVER_DESCRIPTION_KEY not in server:
-                server[SERVER_DESCRIPTION_KEY] = ""
+            if DESCRIPTION_KEY not in server:
+                server[DESCRIPTION_KEY] = ""
 
-            servers.append(Server(name=server[SERVER_NAME_KEY],
-                                  user=server[SERVER_USER_KEY],
-                                  address=server[SERVER_ADDRESS_KEY],
-                                  description=server[SERVER_DESCRIPTION_KEY]))
+            servers.append(Server(name=server[NAME_KEY],
+                                  user=server[USER_KEY],
+                                  address=server[ADDRESS_KEY],
+                                  description=server[DESCRIPTION_KEY]))
 
         return ServersConfig(path, servers)
 
@@ -84,7 +84,17 @@ class Server():
         self.description = description
 
     def connection_string(self):
+        """The connection string suitable for `ssh {connection_string()}`"""
         return "%s@%s" % (self.user, self.address)
+
+    def to_map(self):
+        """Turn it into a map suitable for json serialization"""
+        return {
+            NAME_KEY: self.name,
+            USER_KEY: self.user,
+            ADDRESS_KEY: self.address,
+            DESCRIPTION_KEY: self.description,
+        }
 
 
 class ServersConfig():
@@ -92,3 +102,38 @@ class ServersConfig():
     def __init__(self, path, servers):
         self.path = path
         self.servers = servers
+
+    def to_map(self):
+        """Turn it into a map suitable for json serialization"""
+        config_map = {
+            VERSION_KEY: VERSION,
+            SERVERS_KEY: [],
+        }
+
+        for server in self.servers:
+            config_map[SERVERS_KEY].append(server.to_map())
+
+        return config_map
+
+    def get_server(self, name):
+        """Get the server by this name. If the server is not present, returns None"""
+        for server in self.servers:
+            if server.name == name:
+                return server
+
+        return None
+
+    def add_server(self, name, user, address):
+        """Adds a server to this config, or updates an existing server by that name"""
+        server = self.get_server(name)
+        if server:
+            server.user = user
+            server.address = address
+        else:
+            self.servers.append(Server(name, user, address, ""))
+
+    def save(self):
+        """Save it to the disk at the given path"""
+        config_json = json.dumps(self.to_map(), indent=2) + "\n"
+        with open(self.path, 'w') as f:
+            f.write(config_json)
