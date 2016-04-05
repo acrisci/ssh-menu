@@ -36,7 +36,7 @@ def start(config):
 
     body = [urwid.Text(u'\nServers'), Divider(u'-')]
 
-    for server in config.servers:
+    for server in config.get_servers():
         button = Button(server.name)
         urwid.connect_signal(button, 'click', item_chosen, server)
         body.append(AttrMap(button, None, focus_map='reversed'))

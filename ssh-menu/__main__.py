@@ -41,6 +41,7 @@ add_subparser.set_defaults(func=add_server)
 
 args = parser.parse_args()
 
+init_config()
 path = get_default_servers_config_path()
 config = get_servers_config(path)
 

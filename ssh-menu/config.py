@@ -34,7 +34,7 @@ def init_config():
         # the servers config already exists
         return
 
-    config_template = { VERSION_KEY: VERSION, SERVERS_KEY: [] }
+    config_template = { VERSION_KEY: VERSION, SERVERS_KEY: {} }
 
     with open(default_servers_config, mode='w') as f:
         f.writelines(json.dumps(config_template, indent=2))
@@ -49,21 +49,21 @@ def get_servers_config(path):
         if not VERSION_KEY in config or config[VERSION_KEY] != VERSION:
             raise InvalidConfigException("unsupported config version")
 
-        if not SERVERS_KEY in config or not isinstance(config[SERVERS_KEY], list):
+        if not SERVERS_KEY in config or not isinstance(config[SERVERS_KEY], dict):
             raise InvalidConfigException("malformed or missing %s from config" % SERVERS_KEY)
 
-        servers = []
+        servers = {}
 
-        for server in config[SERVERS_KEY]:
+        for name, server in config[SERVERS_KEY].items():
             # validate the server
-            required_keys = [ NAME_KEY, USER_KEY, ADDRESS_KEY ]
+            required_keys = [ USER_KEY, ADDRESS_KEY ]
             for k in required_keys:
                 if k not in server:
                     raise InvalidConfigException("server missing required key: %s" % k)
 
-            servers.append(Server(name=server[NAME_KEY],
-                                  user=server[USER_KEY],
-                                  address=server[ADDRESS_KEY]))
+            servers[name] = Server(name=name,
+                                   user=server[USER_KEY],
+                                   address=server[ADDRESS_KEY])
 
         return ServersConfig(path, servers)
 
@@ -83,7 +83,6 @@ class Server():
     def to_map(self):
         """Turn it into a map suitable for json serialization"""
         return {
-            NAME_KEY: self.name,
             USER_KEY: self.user,
             ADDRESS_KEY: self.address,
         }
@@ -99,21 +98,25 @@ class ServersConfig():
         """Turn it into a map suitable for json serialization"""
         config_map = {
             VERSION_KEY: VERSION,
-            SERVERS_KEY: [],
+            SERVERS_KEY: {},
         }
 
-        for server in self.servers:
-            config_map[SERVERS_KEY].append(server.to_map())
+        for name, server in self.servers.items():
+            config_map[SERVERS_KEY][name] = server.to_map()
 
         return config_map
 
     def get_server(self, name):
         """Get the server by this name. If the server is not present, returns None"""
-        for server in self.servers:
+        for server in self.servers.values():
             if server.name == name:
                 return server
 
         return None
+
+    def get_servers(self):
+        """Get a list of the servers"""
+        return self.servers.values()
 
     def add_server(self, name, user, address):
         """Adds a server to this config, or updates an existing server by that name"""
@@ -122,7 +125,7 @@ class ServersConfig():
             server.user = user
             server.address = address
         else:
-            self.servers.append(Server(name, user, address))
+            self.servers[name] = Server(name, user, address)
 
     def save(self):
         """Save it to the disk at the given path"""
