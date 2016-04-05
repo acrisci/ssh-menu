@@ -8,7 +8,6 @@ SERVERS_KEY = "servers"
 
 NAME_KEY = "name"
 USER_KEY = "user"
-DESCRIPTION_KEY = "description"
 ADDRESS_KEY = "address"
 
 home = os.environ['HOME']
@@ -62,26 +61,20 @@ def get_servers_config(path):
                 if k not in server:
                     raise InvalidConfigException("server missing required key: %s" % k)
 
-            # add defaults
-            if DESCRIPTION_KEY not in server:
-                server[DESCRIPTION_KEY] = ""
-
             servers.append(Server(name=server[NAME_KEY],
                                   user=server[USER_KEY],
-                                  address=server[ADDRESS_KEY],
-                                  description=server[DESCRIPTION_KEY]))
+                                  address=server[ADDRESS_KEY]))
 
         return ServersConfig(path, servers)
 
 
 class Server():
     """A class for an individual server that a user can connect to"""
-    def __init__(self, name, user, address, description):
+    def __init__(self, name, user, address):
         # TODO: last time it connected for sorting
         self.name = name
         self.user = user
         self.address= address
-        self.description = description
 
     def connection_string(self):
         """The connection string suitable for `ssh {connection_string()}`"""
@@ -93,7 +86,6 @@ class Server():
             NAME_KEY: self.name,
             USER_KEY: self.user,
             ADDRESS_KEY: self.address,
-            DESCRIPTION_KEY: self.description,
         }
 
 
@@ -130,7 +122,7 @@ class ServersConfig():
             server.user = user
             server.address = address
         else:
-            self.servers.append(Server(name, user, address, ""))
+            self.servers.append(Server(name, user, address))
 
     def save(self):
         """Save it to the disk at the given path"""
