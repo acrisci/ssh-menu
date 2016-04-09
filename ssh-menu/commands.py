@@ -1,4 +1,4 @@
-from . import widget
+from . import application
 
 def validate_connection(connection):
     return connection.count('@') == 1 and connection.count(' ') == 0
@@ -22,6 +22,6 @@ def remove_server(args, config):
 def run_app(args, config):
     print('running app...')
     print(args)
-    choice = widget.start(config)
+    choice = application.start(config)
     print('user chose: %s' % choice)
 

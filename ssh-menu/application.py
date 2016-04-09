@@ -12,7 +12,7 @@ palette = [
 ]
 
 def start(config):
-    """Start the widget and handle user input. Blocks until the widget exits."""
+    """Start the application and handle user input. Blocks until the application exits."""
 
     def item_chosen(button, server):
         global choice
