@@ -19,6 +19,10 @@ def remove_server(args, config):
     config.remove_server(server.name)
     config.save()
 
+def list_servers(args, config):
+    for server in config.get_servers():
+        print('%s    %s' % (server.name, server.connection_string()))
+
 def run_app(args, config):
     print('running app...')
     print(args)

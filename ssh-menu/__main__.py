@@ -2,7 +2,7 @@ from .config import init_config
 from .config import get_servers_config
 from .config import get_default_servers_config_path
 from .config import Server
-from .commands import add_server, remove_server, run_app
+from .commands import add_server, remove_server, list_servers, run_app
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
@@ -31,6 +31,11 @@ remove_subparser = subparsers.add_parser('rm',
 remove_subparser.add_argument('name',
                               help='The name of the server to remove')
 remove_subparser.set_defaults(func=remove_server)
+
+# The `list` subparser lists all the configured servers
+list_subparser = subparsers.add_parser('list',
+                                       help='List all configured servers')
+list_subparser.set_defaults(func=list_servers)
 
 
 args = parser.parse_args()
